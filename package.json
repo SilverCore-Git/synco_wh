@@ -1,9 +1,9 @@
 {
-  "name": "@synco/webhook",
-  "version": "0.1.0",
+  "name": "@silvercore/synco-wh",
+  "version": "1.0.0",
   "description": "Poster dans un salon Synco depuis JavaScript avec l'adresse et le secret d'un webhook : signature HMAC, validation, quotas, relances et chiffrement de bout en bout inclus.",
-  "private": true,
-  "license": "UNLICENSED",
+  "private": false,
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,9 +17,10 @@
   "bin": {
     "synco-webhook": "./dist/cli.js"
   },
-  "files": [
+"files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "engines": {

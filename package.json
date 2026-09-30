@@ -1,0 +1,49 @@
+{
+  "name": "@synco/webhook",
+  "version": "0.1.0",
+  "description": "Poster dans un salon Synco depuis JavaScript avec l'adresse et le secret d'un webhook : signature HMAC, validation, quotas, relances et chiffrement de bout en bout inclus.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "synco-webhook": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "synco",
+    "webhook",
+    "hmac",
+    "e2ee"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SilverCore-Git/synco_wh.git"
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "bun test",
+    "check": "bun run typecheck && bun test && bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.14",
+    "@types/node": "24.13.6",
+    "typescript": "6.0.3"
+  }
+}

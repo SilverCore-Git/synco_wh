@@ -6,5 +6,5 @@
     "resolveJsonModule": true,
     "types": ["bun"]
   },
-  "include": ["src", "test", "scripts", "examples"]
+  "include": ["src", "test", "scripts"]
 }

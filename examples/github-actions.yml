@@ -1,0 +1,30 @@
+# .github/workflows/notify-synco.yml
+# Secrets du dépôt : SYNCO_WEBHOOK_URL et SYNCO_WEBHOOK_SECRET.
+name: Notifier Synco
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Poster le résultat
+        env:
+          SYNCO_WEBHOOK_URL: ${{ secrets.SYNCO_WEBHOOK_URL }}
+          SYNCO_WEBHOOK_SECRET: ${{ secrets.SYNCO_WEBHOOK_SECRET }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          npx --yes @synco/webhook send -q \
+            --title "CI ${CONCLUSION} sur ${BRANCH}" \
+            --color "$([ "$CONCLUSION" = success ] && echo success || echo danger)" \
+            --link "$RUN_URL" \
+            --field "Dépôt=${GITHUB_REPOSITORY}" --inline \
+            --timestamp

@@ -1,6 +1,7 @@
 # Plan — `synco_wh`, librairie JavaScript des webhooks Synco
 
-> Statut : **plan, rien n'est codé**. Rédigé le 30/09/2026 d'après la doc
+> Statut : **v0.1.0 implémentée** (jalons 0 à 8, voir §10 et §11 pour les
+> écarts au plan). Plan rédigé le 30/09/2026 d'après la doc
 > (`synco_app/doc/08-webhooks.md`, `synco_api/doc/webhook/*.md`) **et surtout
 > le code** de réception de `synco_api` (routes, middlewares, contrôleur,
 > utilitaires crypto), qui fait foi quand il contredit la doc.
@@ -528,6 +529,8 @@ sortie ≠ 0 et message lisible en cas d'erreur. Parsing d'arguments via
 
 ## 7. Runtimes, packaging, outillage
 
+> Révisé à l'implémentation : voir §11.
+
 - **Zéro dépendance d'exécution.** Tout repose sur `fetch`, `crypto.subtle`,
   `TextEncoder`, `AbortController`, disponibles dans Node ≥ 18, Bun, Deno et les
   runtimes edge (Cloudflare Workers, Vercel Edge).
@@ -606,3 +609,30 @@ sortie ≠ 0 et message lisible en cas d'erreur. Parsing d'arguments via
 | 8 | Doc & release | README (FR + EN), exemples par runtime, GitHub Action d'exemple, CHANGELOG, `0.1.0` |
 
 Chaque jalon se termine par ses tests verts et un commit.
+
+---
+
+## 11. Écarts entre le plan et la v0.1.0
+
+| Plan | Réalisé | Pourquoi |
+|---|---|---|
+| ESM + CJS, Node ≥ 18 | **ESM seul, Node ≥ 22** | Node 18 et 20 sont en fin de vie au 30/09/2026 ; Node 22 charge un module ESM avec `require()`. Un double build aurait produit des déclarations CJS fragiles. |
+| tsup | `tsc` seul (`scripts/build.ts`) | Une dépendance de moins ; aucun bundling nécessaire. |
+| Vitest + passages Bun/Deno | `bun test` | Bun est le seul runtime installé sur le poste de dev ; Node et Deno restent à couvrir en CI. |
+| ESLint | `tsc` strict (`noUncheckedIndexedAccess`…) | Évite une dizaine de dépendances ; à reconsidérer si le dépôt grossit. |
+| < 8 Ko min+gzip | **≈ 11,6 Ko** | Messages d'erreur et indices rédigés en clair ; jugé préférable à des codes nus. |
+| README FR + EN | FR seul | EN à faire avant publication. |
+| Vecteurs générés par script | Import direct du vrai code de `synco_api` dans les tests | Plus fort qu'un vecteur figé : signature, schéma Zod et permissions réels. Le déchiffrement E2EE (module non importable : Prisma, clé maître) est recopié, et `test/drift.test.ts` surveille sa source. |
+
+Ajouts non prévus :
+
+- La préparation d'un message est coupée en deux : validation synchrone (rejet
+  immédiat), chiffrement E2EE **dans** la file. Sans cela, deux envois E2EE
+  simultanés pouvaient être publiés dans le désordre, et `close()` pouvait
+  manquer un envoi tout juste demandé.
+- `redirect: 'error'` sur chaque requête : un corps signé n'est jamais renvoyé
+  vers une autre adresse.
+- `SyncoNetworkError.maybeDelivered` distingue « rien n'est parti » de « peut-être publié ».
+
+Reste à faire : CI (Node 22/24, Bun, Deno), README anglais, choix de la
+licence et du nom npm (§9), puis publication.

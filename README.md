@@ -1,11 +1,11 @@
-# @synco/webhook
+# @silvercore/synco-wh
 
 Poster dans un salon Synco depuis JavaScript, avec l'**adresse** et le **secret**
 d'un webhook. La librairie s'occupe de la signature HMAC, de la validation, des
 quotas, des relances et, si vous l'activez, du chiffrement de bout en bout.
 
 ```js
-import { SyncoWebhook } from '@synco/webhook';
+import { SyncoWebhook } from '@silvercore/synco-wh';
 
 const wh = new SyncoWebhook({
   url: process.env.SYNCO_WEBHOOK_URL,
@@ -108,7 +108,7 @@ await wh.send({ content: 'Nuit calme', username: 'Cron', avatarUrl: 'https://exe
 await wh.send('Alerte', { threadId: 'cl…' });
 
 // Embeds seuls, ou construits en chaîne
-import { EmbedBuilder } from '@synco/webhook';
+import { EmbedBuilder } from '@silvercore/synco-wh';
 await wh.sendEmbed(new EmbedBuilder().title('Incident résolu').color('success').field('Durée', '12 min'));
 ```
 
@@ -124,7 +124,7 @@ Autres méthodes :
 Envoi ponctuel, sans instance :
 
 ```js
-import { sendSyncoMessage } from '@synco/webhook';
+import { sendSyncoMessage } from '@silvercore/synco-wh';
 await sendSyncoMessage(url, secret, 'Bonjour');
 ```
 
@@ -138,7 +138,7 @@ Toutes les erreurs dérivent de `SyncoWebhookError`, avec un `code` stable, le
 Aucune ne contient le jeton ni le secret.
 
 ```js
-import { SyncoWebhookError, SyncoValidationError } from '@synco/webhook';
+import { SyncoWebhookError, SyncoValidationError } from '@silvercore/synco-wh';
 
 try {
   await wh.send(message);
@@ -243,11 +243,11 @@ Un payload GitHub n'est jamais chiffré. Voir `examples/github-relay.ts`.
 ```bash
 export SYNCO_WEBHOOK_URL=… SYNCO_WEBHOOK_SECRET=…
 
-npx @synco/webhook send "Déploiement terminé"
-npx @synco/webhook send --title "Build #1240" --color success --field "Branche=main" --field "Durée=2 min" --inline
-git log -1 --format=%s | npx @synco/webhook send --stdin
-npx @synco/webhook send --json event.json
-npx @synco/webhook check      # vérifie la configuration, sans rien envoyer
+npx @silvercore/synco-wh send "Déploiement terminé"
+npx @silvercore/synco-wh send --title "Build #1240" --color success --field "Branche=main" --field "Durée=2 min" --inline
+git log -1 --format=%s | npx @silvercore/synco-wh send --stdin
+npx @silvercore/synco-wh send --json event.json
+npx @silvercore/synco-wh check      # vérifie la configuration, sans rien envoyer
 ```
 
 L'adresse et le secret ne se passent **jamais** en argument : ils finiraient

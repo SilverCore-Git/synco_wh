@@ -20,6 +20,10 @@ await wh.send('Déploiement terminé en 42 s');
 - Côté serveur uniquement : dans une page web, le secret serait lisible par
   tout visiteur, et l'API Synco n'autorise pas l'en-tête de signature en CORS.
 
+> **Documentation complète : [docs/guide.md](docs/guide.md)** — configuration,
+> messages et cartes, erreurs, relances, E2EE, CLI, recettes, dépannage,
+> référence de l'API.
+
 > **Statut :** 0.1.0, non publiée. Le paquet est marqué `private` tant que sa
 > licence d'utilisation n'est pas choisie (voir `PLAN.md`, §9).
 

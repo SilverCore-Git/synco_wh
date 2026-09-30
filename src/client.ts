@@ -205,8 +205,8 @@ export class SyncoWebhook {
   /** Publie un message. Une chaîne est un raccourci pour `{ content }`. */
   async send(input: MessageInput, options: SendOptions = {}): Promise<SendResult> {
     this.assertOpen();
-    const body = await this.prepareMessage(input, options.threadId);
-    return this.enqueue(body, false, options);
+    const wire = this.checkedMessage(input, options.threadId);
+    return this.enqueue(() => this.seal(wire), false, options);
   }
 
   /** Publie un ou plusieurs embeds sans texte. */
@@ -232,19 +232,20 @@ export class SyncoWebhook {
       }
       const body = JSON.stringify(payload);
       assertBodySize(body);
-      return this.enqueue(body, true, options);
+      return this.enqueue(async () => body, true, options);
     }
 
     if (format === 'discord') {
-      return this.enqueue(await this.prepareMessage(discordToMessage(payload), options.threadId), false, options);
+      const wire = this.checkedMessage(discordToMessage(payload), options.threadId);
+      return this.enqueue(() => this.seal(wire), false, options);
     }
 
     const raw = payload as Partial<WirePayload>;
-    const wire = {
+    const wire = this.checkedWire({
       ...raw,
       _synco: { ...raw._synco, ...(options.threadId && { targetThreadId: options.threadId }) },
-    } as WirePayload;
-    return this.enqueue(await this.prepareWire(wire), false, options);
+    } as WirePayload);
+    return this.enqueue(() => this.seal(wire), false, options);
   }
 
   /** Anomalies qui feraient refuser ce message, sans rien envoyer. */
@@ -255,7 +256,7 @@ export class SyncoWebhook {
 
   /** Requête exacte qui serait envoyée (jeton masqué), pour inspection ou envoi par un autre client. */
   async buildRequest(input: MessageInput, options: Pick<SendOptions, 'threadId'> = {}): Promise<BuiltRequest> {
-    const body = await this.prepareMessage(input, options.threadId);
+    const body = await this.seal(this.checkedMessage(input, options.threadId));
     return { url: redactedUrl(this.endpoint, false), headers: await this.headersFor(body), body };
   }
 
@@ -274,17 +275,24 @@ export class SyncoWebhook {
   // Préparation
   // ============================================
 
-  private prepareMessage(input: MessageInput, threadId: string | undefined): Promise<string> {
+  // La préparation est coupée en deux : la partie synchrone (normalisation,
+  // validation) rejette tout de suite ; la partie asynchrone (chiffrement)
+  // tourne dans la file, pour que l'ordre de la file soit celui des appels.
+
+  private checkedMessage(input: MessageInput, threadId: string | undefined): WirePayload {
     const wire = normalizeMessage(toMessage(input), { defaults: this.defaults, threadId, onOverflow: this.onOverflow });
-    return this.prepareWire(wire);
+    return this.checkedWire(wire);
   }
 
-  private async prepareWire(wire: WirePayload): Promise<string> {
+  private checkedWire(wire: WirePayload): WirePayload {
     const issues = [...(this.validateEnabled ? validatePayload(wire) : []), ...this.e2eeIssues(wire)];
     if (issues.length) throw new SyncoValidationError(issues, 'local');
-
+    assertBodySize(JSON.stringify(wire));
     this.warnAboutHtml(wire);
+    return wire;
+  }
 
+  private async seal(wire: WirePayload): Promise<string> {
     if (this.encrypt && typeof wire.content === 'string' && wire.content !== '' && !wire.encrypted) {
       const sealed = await this.encrypt(wire.content);
       wire = { ...wire, ...sealed, encrypted: true, _synco: { ...wire._synco, encrypted: true } };
@@ -339,8 +347,8 @@ export class SyncoWebhook {
   // Transport
   // ============================================
 
-  private enqueue(body: string, github: boolean, options: SendOptions): Promise<SendResult> {
-    return this.queue.run(() => this.transmit(body, github, options));
+  private enqueue(body: () => Promise<string>, github: boolean, options: SendOptions): Promise<SendResult> {
+    return this.queue.run(async () => this.transmit(await body(), github, options));
   }
 
   private async transmit(body: string, github: boolean, options: SendOptions): Promise<SendResult> {

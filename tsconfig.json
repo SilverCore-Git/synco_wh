@@ -2,6 +2,8 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "types": ["bun"]
   },
   "include": ["src", "test", "scripts", "examples"]

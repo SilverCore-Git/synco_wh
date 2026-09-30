@@ -1,4 +1,4 @@
-# Guide d'utilisation — `@synco/webhook`
+# Guide d'utilisation - `@silvercore/synco-wh`
 
 > Version de la librairie : **0.1.0** · Dernière mise à jour : 30 septembre 2026
 >
@@ -46,7 +46,7 @@ un format strict et des quotas, et d'interpréter des erreurs peu parlantes. La
 librairie fait tout cela pour vous :
 
 ```js
-import { SyncoWebhook } from '@synco/webhook';
+import { SyncoWebhook } from '@silvercore/synco-wh';
 
 const wh = new SyncoWebhook({
   url: process.env.SYNCO_WEBHOOK_URL,
@@ -119,11 +119,11 @@ Dans la fiche du webhook, section **Réglages avancés** :
 ## 3. Installation
 
 ```bash
-npm install @synco/webhook
+npm install @silvercore/synco-wh
 # ou
-bun add @synco/webhook
-pnpm add @synco/webhook
-yarn add @synco/webhook
+bun add @silvercore/synco-wh
+pnpm add @silvercore/synco-wh
+yarn add @silvercore/synco-wh
 ```
 
 > **Paquet pas encore publié.** En attendant, installez-le depuis une copie
@@ -140,10 +140,10 @@ ses déclarations TypeScript.
 
 ```js
 // Module ES (recommandé)
-import { SyncoWebhook } from '@synco/webhook';
+import { SyncoWebhook } from '@silvercore/synco-wh';
 
 // CommonJS : fonctionne à partir de Node 22.12, qui sait charger un module ES
-const { SyncoWebhook } = require('@synco/webhook');
+const { SyncoWebhook } = require('@silvercore/synco-wh');
 ```
 
 ---
@@ -158,7 +158,7 @@ export SYNCO_WEBHOOK_SECRET="<secret>"
 ```
 
 ```js
-import { SyncoWebhook } from '@synco/webhook';
+import { SyncoWebhook } from '@silvercore/synco-wh';
 
 const wh = new SyncoWebhook();               // lit les variables ci-dessus
 const result = await wh.send('Bonjour depuis mon script 👋');
@@ -169,7 +169,7 @@ await wh.close();
 ### 4.2 Vérifier la configuration sans rien publier
 
 ```bash
-npx @synco/webhook check
+npx @silvercore/synco-wh check
 ```
 
 ```
@@ -188,7 +188,7 @@ de la fiche du webhook.
 ### 4.3 En une ligne, sans instance
 
 ```js
-import { sendSyncoMessage } from '@synco/webhook';
+import { sendSyncoMessage } from '@silvercore/synco-wh';
 
 await sendSyncoMessage(process.env.SYNCO_WEBHOOK_URL, process.env.SYNCO_WEBHOOK_SECRET, 'Bonjour');
 ```
@@ -458,7 +458,7 @@ Formats acceptés, tous convertis au format `#rrggbb` qu'attend Synco :
 | `'info'` | `#3b82f6` |
 | `'neutral'` | `#64748b` |
 
-La palette est exportée : `import { Colors } from '@synco/webhook'`, puis
+La palette est exportée : `import { Colors } from '@silvercore/synco-wh'`, puis
 `Colors.danger`.
 
 ### 7.3 Horodatage
@@ -472,7 +472,7 @@ par `new Date()`. La librairie le convertit en ISO 8601 UTC
 Trois styles, équivalents :
 
 ```js
-import { EmbedBuilder, embed } from '@synco/webhook';
+import { EmbedBuilder, embed } from '@silvercore/synco-wh';
 
 // Objet littéral
 await wh.send({
@@ -698,7 +698,7 @@ import {
   SyncoWebhookError,
   SyncoValidationError,
   SyncoRateLimitError,
-} from '@synco/webhook';
+} from '@silvercore/synco-wh';
 
 try {
   await wh.send(message);
@@ -829,7 +829,7 @@ cause d'échec la plus courante des implémentations manuelles est ainsi écart�
 Pour signer une requête envoyée par un autre client HTTP :
 
 ```js
-import { signPayload } from '@synco/webhook';
+import { signPayload } from '@silvercore/synco-wh';
 
 const body = JSON.stringify({ content: 'Bonjour', _synco: {} });
 const timestamp = String(Date.now());
@@ -1051,7 +1051,7 @@ Le paquet fournit `synco-webhook`, utilisable dans un shell ou un pipeline sans
 écrire de JavaScript.
 
 ```bash
-npx @synco/webhook send "Déploiement terminé"
+npx @silvercore/synco-wh send "Déploiement terminé"
 ```
 
 ### 16.1 Configuration
@@ -1138,7 +1138,7 @@ fi
 |---|---|---|
 | Node.js 22+ | oui | ESM ; `require()` à partir de 22.12. |
 | Bun | oui | Environnement de développement de la librairie. |
-| Deno 2 | oui | `import { SyncoWebhook } from 'npm:@synco/webhook'` ; lancer avec `--allow-net --allow-env`. |
+| Deno 2 | oui | `import { SyncoWebhook } from 'npm:@silvercore/synco-wh'` ; lancer avec `--allow-net --allow-env`. |
 | Cloudflare Workers | oui | Passer l'adresse et le secret explicitement (voir [§18.4](#184-cloudflare-worker)). |
 | Vercel / Netlify Edge | oui | Idem. |
 | Navigateur | **non** | Refusé à la construction ; voir [§19](#19-sécurité). |
@@ -1199,7 +1199,7 @@ jobs:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
         run: |
-          npx --yes @synco/webhook send -q \
+          npx --yes @silvercore/synco-wh send -q \
             --title "CI ${CONCLUSION} sur ${BRANCH}" \
             --color "$([ "$CONCLUSION" = success ] && echo success || echo danger)" \
             --link "$RUN_URL" \
@@ -1215,7 +1215,7 @@ jobs:
   image: node:22-alpine
   script:
     - |
-      npx --yes @synco/webhook send -q \
+      npx --yes @silvercore/synco-wh send -q \
         --title "Pipeline #$CI_PIPELINE_ID : $RESULT" \
         --color "$COLOR" --link "$CI_PIPELINE_URL" \
         --field "Branche=$CI_COMMIT_REF_NAME" --field "Commit=$CI_COMMIT_SHORT_SHA" --inline
@@ -1237,7 +1237,7 @@ notify_synco_failure:
 
 ```js
 // rapport-quotidien.mjs — lancé chaque matin par cron
-import { SyncoWebhook, Colors } from '@synco/webhook';
+import { SyncoWebhook, Colors } from '@silvercore/synco-wh';
 
 const wh = new SyncoWebhook({ defaults: { username: 'Rapport quotidien' } });
 const stats = await calculerStatistiques();
@@ -1265,7 +1265,7 @@ try {
 Les workers ne lisent pas `process.env` : passez la configuration explicitement.
 
 ```js
-import { SyncoWebhook } from '@synco/webhook';
+import { SyncoWebhook } from '@silvercore/synco-wh';
 
 export default {
   async scheduled(event, env, ctx) {
@@ -1282,7 +1282,7 @@ Synco (GitHub signe avec son propre en-tête, que Synco ne lit pas) :
 
 ```js
 import express from 'express';
-import { SyncoWebhook, SyncoWebhookError } from '@synco/webhook';
+import { SyncoWebhook, SyncoWebhookError } from '@silvercore/synco-wh';
 
 const synco = new SyncoWebhook();
 const app = express();
@@ -1410,7 +1410,7 @@ Ce que la librairie garantit :
 
 **`SIGNATURE_REQUIRED` alors que je fournis un secret.**
 Vérifiez que la variable est bien définie dans l'environnement du processus
-(`npx @synco/webhook check`). Une option `secret: null` l'ignore.
+(`npx @silvercore/synco-wh check`). Une option `secret: null` l'ignore.
 
 **`INVALID_SIGNATURE`.**
 Le secret ne correspond pas au webhook : mal copié, ou régénéré depuis. Il n'est
@@ -1477,7 +1477,7 @@ import {
   SyncoForbiddenError, SyncoNotFoundError, SyncoPayloadTooLargeError,
   SyncoRateLimitError, SyncoDecryptionError, SyncoNoThreadError,
   SyncoServerError, SyncoNetworkError, SyncoTimeoutError, SyncoAbortError,
-} from '@synco/webhook';
+} from '@silvercore/synco-wh';
 
 import type {
   SyncoWebhookOptions, SendOptions, ForwardOptions, SyncoHooks, BuiltRequest,
@@ -1485,7 +1485,7 @@ import type {
   MessageDefaults, EmbedSource, ColorInput, ColorName, SendResult,
   RateLimitInfo, ValidationIssue, SyncoErrorCode, OverflowMode,
   ForwardFormat, PayloadFormat, WebhookEndpoint, WirePayload,
-} from '@synco/webhook';
+} from '@silvercore/synco-wh';
 ```
 
 ### 21.2 `SyncoWebhook`

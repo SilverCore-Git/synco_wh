@@ -37,6 +37,8 @@
     "url": "https://github.com/SilverCore-Git/synco_wh.git"
   },
   "scripts": {
+    "setup": "git config core.hooksPath .githooks",
+    "check:secrets": "node scripts/check-secrets.mjs --all",
     "build": "bun run scripts/build.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "bun test",

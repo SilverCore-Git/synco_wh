@@ -280,3 +280,7 @@ Les tests confrontent la librairie au **vrai code** de `synco_api` (vérificatio
 de signature, schéma Zod, permissions) quand le dépôt est présent à côté de
 celui-ci, ou désigné par `SYNCO_API_DIR`. `test/drift.test.ts` signale un
 changement de protocole côté API.
+
+## Contribuer
+
+Le dépôt est public : `bun run setup` active le hook `pre-commit` qui exécute le contrôle de secrets (`scripts/check-secrets.mjs`) sur chaque commit. `bun run check:secrets` contrôle tout le dépôt.
